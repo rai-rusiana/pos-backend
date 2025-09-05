@@ -1,0 +1,121 @@
+import { PrismaClient } from "@prisma/client";
+const prisma = new PrismaClient();
+
+/**
+ * @description
+ * Creates a new Store in the database.
+ * @param {object} storeData - The Store's data (name, etc.).
+ * @param {number} branchId - The ID of the branch the store belongs to.
+ * @returns {Promise<object>} The newly created Store data.
+ */
+export const createStore = async (storeData, branchId, ownerId) => {
+  const newStoreWithInventory = await prisma.store.create({
+    data: {
+      ...storeData,
+      branch: {
+        connect: {
+          id: branchId
+        }
+      },
+      owner: {
+        connect: {
+          id: ownerId
+        }
+      },
+      // Nested write: Create the inventory at the same time as the store.
+      // Prisma automatically handles the relationship.
+      inventory: {
+        create: {
+          name: `${storeData.name} Inventory`
+        }
+      }
+    },
+    // Include the inventory in the response to confirm it was created.
+    include: {
+      inventory: true
+    }
+  });
+
+  return newStoreWithInventory;
+};
+/**
+ * @description
+ * Retrieves a single store from the database by its unique ID.
+ * It also includes the associated branch data.
+ * @param {number} id - The store's unique ID.
+ * @returns {Promise<object|null>} The store object or null if not found.
+ */
+export const getStoreById = async (id) => {
+  const store = await prisma.store.findUnique({
+    where: { id },
+    include: {
+      branch: true,
+    },
+  });
+
+  return store;
+};
+/**
+ * @description
+ * Retrieves all stores belonging to a specific branch.
+ * This is a corrected version of the original getBranchStores.
+ * @param {number} branchId - The ID of the branch.
+ * @returns {Promise<object[]>} An array of store objects.
+ */
+export const getStoresByBranchId = async (branchId) => {
+  const stores = await prisma.store.findMany({
+    where: { branchId },
+    select: {
+      id: true,
+      name: true,
+      address: true,
+      phone: true,
+      code: true,
+      governmentTax: true,
+      serviceCharge: true,
+      outletType: true,
+      wifiSSID: true,
+      branchId: true,
+      owner: {
+        select: {
+          fullname: true,
+          username: true,
+          email: true,
+          role: true,
+        },
+      },
+      branch: true,
+      devices: true,
+      inventory: true,
+      transaction: true,
+    },
+  });
+  return stores;
+};
+
+/**
+ * @description
+ * Updates an existing store by its ID.
+ * @param {number} id - The store's unique ID.
+ * @param {object} storeData - The updated store data.
+ * @returns {Promise<object>} The updated store object.
+ */
+export const updateStore = async (id, storeData) => {
+  const updatedStore = await prisma.store.update({
+    where: { id }, // Corrected to use a unique 'id'
+    data: storeData,
+  });
+  return updatedStore;
+};
+
+/**
+ * @description
+ * Deletes a store from the database by its ID.
+ * @param {number} id - The store's unique ID.
+ * @returns {Promise<object>} The deleted store object.
+ */
+export const deleteStore = async (id) => {
+  return await prisma.store.delete({
+    where: { id },
+  });
+};
