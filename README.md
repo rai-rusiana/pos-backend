@@ -59,3 +59,7 @@
   # See prisma/schema.prisma 
   database schema setup, relationships, models(tables), fields and fieldtypes. 
   
+  # Create .env file in the root of the project and paste this
+    DATABASE_URL = "file:./dev.db"
+    JWT_SECRET=your_super_secret_jwt_key
+    REFRESH_SECRET=your_super_secret_refresh_key
