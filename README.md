@@ -35,8 +35,8 @@
     //POST http://localhost:3000/api/users/
     //Click body type JSON body like these objects.
     {
-      "email": "vader@gm232ail.com",
-      "password": "mmanrus123",
+      "email": "...@gm232ail.com",
+      "password": "...",
       "role": "CASHIER",
       "fullname": "staff test 1",
       "username": "Star kill"
